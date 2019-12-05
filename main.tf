@@ -1,16 +1,16 @@
 resource "azurerm_application_insights" "ai" {
-  name                = "${var.name}"
-  location            = "${var.location}"
-  resource_group_name = "${var.rg_name}"
+  name                = var.name
+  location            = var.location
+  resource_group_name = var.rg_name
   application_type    = "Web"
 }
 
 resource "azurerm_application_insights_web_test" "test" {
-  count                   = "${length(keys(var.web_tests))}"
-  name                    = "${element(keys(var.web_tests), count.index)}"
-  location                = "${var.location}"
-  resource_group_name     = "${var.rg_name}"
-  application_insights_id = "${azurerm_application_insights.ai.id}"
+  count                   = length(keys(var.web_tests))
+  name                    = element(keys(var.web_tests), count.index)
+  location                = var.location
+  resource_group_name     = var.rg_name
+  application_insights_id = azurerm_application_insights.ai.id
   kind                    = "ping"
   frequency               = 300
   timeout                 = 120
