@@ -27,26 +27,3 @@ resource "azurerm_application_insights_web_test" "test" {
 </WebTest>
 XML
 }
-
-resource "azurerm_monitor_metric_alert" "test_alert" {
-  count               = length(keys(var.web_tests)) > 0 ? 1 : 0
-  name                = "${azurerm_application_insights.ai.name}-availability"
-  resource_group_name = var.rg_name
-  scopes              = [azurerm_application_insights.ai.id]
-  description         = "Alerts when 100% uptime is broken for the App Insights instance."
-
-  criteria {
-    metric_namespace = "Microsoft.Insights/Components"
-    metric_name      = "availabilityResults/availabilityPercentage"
-    aggregation      = "Average"
-    operator         = "LessThan"
-    threshold        = 100
-  }
-
-  dynamic "action" {
-    for_each = var.action_group_id != null ? [""] : []
-    content {
-      action_group_id = var.action_group_id
-    }
-  }
-}
