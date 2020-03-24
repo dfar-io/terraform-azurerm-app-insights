@@ -15,7 +15,7 @@ resource "azurerm_application_insights_web_test" "test" {
   frequency               = 300
   timeout                 = 120
   enabled                 = true
-  retry_enabled           = false
+  retry_enabled           = true
   geo_locations = ["us-tx-sn1-azr", "us-il-ch1-azr", "us-ca-sjc-azr",
   "us-va-ash-azr", "us-fl-mia-edge"]
 
@@ -26,4 +26,26 @@ resource "azurerm_application_insights_web_test" "test" {
   </Items>
 </WebTest>
 XML
+}
+
+resource "azurerm_monitor_metric_alert" "request_failures_alert" {
+  name                = "${var.name} - Request failures greater than 0"
+  resource_group_name = var.rg_name
+  scopes              = [azurerm_application_insights.ai.id]
+  description         = "Action will be triggered when request failures are reported."
+
+  criteria {
+    metric_namespace = "Microsoft.Insights/Components"
+    metric_name      = "requests/failed"
+    aggregation      = "Count"
+    operator         = "GreaterThan"
+    threshold        = 0
+  }
+
+    dynamic "action" {
+      for_each = var.action_group_id != "" ? [""] : []
+      content {
+        action_group_id = var.action_group_id
+      }
+    }
 }
