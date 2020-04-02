@@ -40,6 +40,12 @@ resource "azurerm_monitor_metric_alert" "request_failures_alert" {
     aggregation      = "Count"
     operator         = "GreaterThan"
     threshold        = 0
+    
+    dimension {
+      name     = "request/resultCode"
+      operator = "Include"
+      values   = ["0", "500"]
+    }
   }
 
     dynamic "action" {
