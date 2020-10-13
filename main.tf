@@ -2,7 +2,7 @@ resource "azurerm_application_insights" "ai" {
   name                = var.name
   location            = var.location
   resource_group_name = var.rg_name
-  application_type    = "Web"
+  application_type    = "web"
 }
 
 resource "azurerm_application_insights_web_test" "test" {
