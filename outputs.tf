@@ -3,7 +3,7 @@ output "instrumentation_key" {
   value       = azurerm_application_insights.ai.instrumentation_key
 }
 
-output "instrumentation_key" {
+output "connection_string" {
   description = "Connection string provided by resource."
   value       = azurerm_application_insights.ai.connection_string
 }
