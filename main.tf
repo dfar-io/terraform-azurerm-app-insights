@@ -12,12 +12,19 @@ resource "azurerm_application_insights_web_test" "test" {
   resource_group_name     = var.rg_name
   application_insights_id = azurerm_application_insights.ai.id
   kind                    = "ping"
-  frequency               = 300
-  timeout                 = 120
   enabled                 = true
   retry_enabled           = true
-  geo_locations = ["us-tx-sn1-azr", "us-il-ch1-azr", "us-ca-sjc-azr",
-  "us-va-ash-azr", "us-fl-mia-edge"]
+  geo_locations = [
+    "us-tx-sn1-azr",
+    "us-il-ch1-azr",
+    "us-ca-sjc-azr",
+    "us-va-ash-azr",
+    "us-fl-mia-edge"
+  ]
+
+  tags = {
+    "hidden-link:${azurerm_application_insights.ai.id}" = "Resource"
+  }
 
   configuration = <<XML
 <WebTest Name="${element(keys(var.web_tests), count.index)}" Id="ABD48585-0831-40CB-9069-682EA6BB3583" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="0" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
