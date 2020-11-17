@@ -35,30 +35,57 @@ resource "azurerm_application_insights_web_test" "test" {
 XML
 }
 
-resource "azurerm_monitor_metric_alert" "request_failures_alert" {
-  name                = "${var.name} - Request failures greater than 0"
-  resource_group_name = var.rg_name
-  scopes              = [azurerm_application_insights.ai.id]
-  description         = "Action will be triggered when request failures are reported."
-
-  criteria {
-    metric_namespace = "Microsoft.Insights/Components"
-    metric_name      = "requests/failed"
-    aggregation      = "Count"
-    operator         = "GreaterThan"
-    threshold        = 0
-    
-    dimension {
-      name     = "request/resultCode"
-      operator = "Include"
-      values   = ["0", "500"]
+resource "azurerm_monitor_metric_alert" "webtest_alert" {
+    count               = length(keys(var.web_tests))
+    name                = element(keys(var.web_tests), count.index)
+    resource_group_name = var.rg_name
+    scopes              = [
+      azurerm_application_insights_web_test.test[count.index].id,
+      azurerm_application_insights.ai.id
+    ]
+    description         = "Availability monitoring"
+    enabled             = true
+    auto_mitigate       = true
+    frequency           = "PT5M"
+    severity            = 0
+    application_insights_web_test_location_availability_criteria {
+        web_test_id             = azurerm_application_insights_web_test.test[count.index].id
+        component_id            = azurerm_application_insights.ai.id
+        failed_location_count   = 2      
     }
-  }
 
     dynamic "action" {
       for_each = var.action_group_id != "" ? [""] : []
       content {
         action_group_id = var.action_group_id
       }
-    }
+    } 
 }
+
+# resource "azurerm_monitor_metric_alert" "request_failures_alert" {
+#   name                = "${var.name} - Request failures greater than 0"
+#   resource_group_name = var.rg_name
+#   scopes              = [azurerm_application_insights.ai.id]
+#   description         = "Action will be triggered when request failures are reported."
+
+#   criteria {
+#     metric_namespace = "Microsoft.Insights/Components"
+#     metric_name      = "requests/failed"
+#     aggregation      = "Count"
+#     operator         = "GreaterThan"
+#     threshold        = 0
+    
+#     dimension {
+#       name     = "request/resultCode"
+#       operator = "Include"
+#       values   = ["0", "500"]
+#     }
+#   }
+
+#     dynamic "action" {
+#       for_each = var.action_group_id != "" ? [""] : []
+#       content {
+#         action_group_id = var.action_group_id
+#       }
+#     }
+# }
